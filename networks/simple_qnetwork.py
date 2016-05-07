@@ -179,8 +179,7 @@ class SimpleQNetwork(QNetwork):
         action = tf.placeholder(tf.float32, shape=[None, self.num_actions])
 
         # First Layer
-        W_conv1 = QNetwork.weight_variable([5, 5, 
-            self.input_frame_length, 32])
+        W_conv1 = QNetwork.weight_variable([5, 5, self.input_frame_length, 32])
         b_conv1 = QNetwork.bias_variable([32])
 
         h_conv1 = tf.nn.relu(QNetwork.conv2d(input, W_conv1) + b_conv1)

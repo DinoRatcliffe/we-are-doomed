@@ -85,3 +85,5 @@ while True and not_finished:
                 if state.game_variables[0] == 0:
                     game.new_episode()
 
+game.close()
+

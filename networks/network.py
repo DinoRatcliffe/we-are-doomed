@@ -155,7 +155,6 @@ class FrameQueue:
         """
         self.size = size
         self.memory = deque(maxlen=size)
-        self.zipped_stale = True
         self.zipped = []
 
     def add_frame(self, frame):
@@ -164,24 +163,12 @@ class FrameQueue:
             frame: a 2D vector of the game frame
         """
         self.memory.append(frame)
-        self.zipped_stale = True
 
     def filled(self):
         return len(self.memory) == self.size
 
     def zip(self):
-        if self.zipped_stale:
-            if self.size == 1:
-                return np.array(self.memory)
-
-            self.zipped = [[[0] * len(self.memory)] * len(self.memory[0][0])] * len(self.memory[0])
-            for image in range(0, self.size):
-                for x in range(0, len(self.memory[image])):
-                    for y in range(0, len(self.memory[image][x])):
-                        self.zipped[x][y][image] = self.memory[image][x][y]
-            self.zipped_stale = False
-
-        return self.zipped 
+        return np.reshape(np.dstack(self.memory).flatten(), (len(self.memory[0]), len(self.memory[0][0]), self.size))
             
 
 class ReplayMemory:
