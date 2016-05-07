@@ -43,7 +43,7 @@ class QNetwork(object):
         Args:
             t_step: Integer indicating the current time step
         """
-        self.saver.save(self.sess, self.modelDir + '/model.ckpt', t_step)
+        self.saver.save(self.sess, self.model_dir + '/model.ckpt', t_step)
 
     def start_session(self):
         self.network = self.create_network();
@@ -51,7 +51,7 @@ class QNetwork(object):
         self.sess = tf.Session()
         self.sess.run(tf.initialize_all_variables())
         ckpt = tf.train.get_checkpoint_state(self.model_dir)
-        if ckpt and ckpt.model_ckeckpoint_path:
+        if ckpt and ckpt.model_checkpoint_path:
             print('loaded saved model at: ' + self.model_dir)
         else:
             print('No model found at: ' + self.model_dir)
@@ -165,6 +165,9 @@ class FrameQueue:
         """
         self.memory.append(frame)
         self.zipped_stale = True
+
+    def filled(self):
+        return len(self.memory) == self.size
 
     def zip(self):
         if self.zipped_stale:

@@ -27,7 +27,7 @@ class SimpleQNetwork(QNetwork):
     """
 
     def __init__(self, model_dir, num_actions, image_height, image_width,  
-            memorysize = 20000, input_frame_length = 4, observe_ticks = 100, batch_size = 32):
+            memorysize = 20000, input_frame_length = 4, observe_ticks = 10000, batch_size = 32):
         """ Initialises network
         """
         super(SimpleQNetwork, self).__init__(model_dir, num_actions)
@@ -45,7 +45,7 @@ class SimpleQNetwork(QNetwork):
 
         self.start_epsilon = 1.0
         self.end_epsilon = 0
-        self.epsilon_degrade_steps = 50000
+        self.epsilon_degrade_steps = 1000000
         self.current_epsilon = self.start_epsilon 
 
         self.start_session()
@@ -90,6 +90,9 @@ class SimpleQNetwork(QNetwork):
             the action chosen at random
         """
         self.t += 1
+        if self.t % 1000 == 0:
+            self.save_model(self.t)
+
         if self.t < self.observe_ticks:
             if self.t < self.input_frame_length+1:
                 # TODO(yo@dino.io): tidy up flatten
@@ -121,12 +124,12 @@ class SimpleQNetwork(QNetwork):
             An Integer between 0 and num_actions to indicate
             the action chosen at random
         """
-        if self.t < self.input_frame_length+1:
-            self.frame_queue.add_frame(np.array(state['frame']))
-            return self.pick_random_action()
-        else:
+        if self.frame_queue.filled():
             self.frame_queue.add_frame(np.array(state['frame']))
             return self.pick_action(self.frame_queue.zip(), 0)
+        else:
+            self.frame_queue.add_frame(np.array(state['frame']))
+            return self.pick_random_action()
 
     def train_step(self):
         """ performs a train step by picking a minibatch of experiances from memory
