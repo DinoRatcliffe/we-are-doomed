@@ -49,9 +49,17 @@ class QNetwork(object):
         self.network = self.create_network();
         self.saver = tf.train.Saver();
         self.sess = tf.Session()
+
+        self.summaries = tf.merge_all_summaries()
+        self.train_writer = tf.train.SummaryWriter('logs/train', self.sess.graph)
+        self.summary_writer = tf.train.SummaryWriter('logs/summary')
+
         self.sess.run(tf.initialize_all_variables())
+
         ckpt = tf.train.get_checkpoint_state(self.model_dir)
+
         if ckpt and ckpt.model_checkpoint_path:
+            self.saver.restore(self.sess, ckpt.model_checkpoint_path)
             print('loaded saved model at: ' + self.model_dir)
         else:
             print('No model found at: ' + self.model_dir)
@@ -130,6 +138,19 @@ class QNetwork(object):
         """
         initial = tf.constant(0.1, shape=shape)
         return tf.Variable(initial)
+
+    @staticmethod
+    # TODO(yo@dino.io): Add documentation
+    def variable_summaries(var, name):
+        with tf.name_scope("summaries"):
+            mean = tf.reduce_mean(var)
+            tf.scalar_summary('mean/' + name, mean)
+            with tf.name_scope('stddev'):
+                stddev = tf.sqrt(tf.reduce_sum(tf.square(var - mean)))
+            tf.scalar_summary('stddev/' + name, mean)
+            tf.scalar_summary('max/' + name, tf.reduce_max(var))
+            tf.scalar_summary('min/' + name, tf.reduce_min(var))
+            tf.histogram_summary(name, var)
 
     @staticmethod
     # TODO(yo@dino.io): Add documentation

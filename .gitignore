@@ -1,0 +1,4 @@
+*.pyc
+oldmodels/
+logs/
+models/
