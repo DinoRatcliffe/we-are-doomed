@@ -43,9 +43,9 @@ class SimpleQNetwork(QNetwork):
         self.previous_sa_pair = ()
         self.frame_queue = FrameQueue(input_frame_length)
 
-        self.start_epsilon = 0
+        self.start_epsilon = 1.0
         self.end_epsilon = 0
-        self.epsilon_degrade_steps = 0
+        self.epsilon_degrade_steps = 200000
         self.current_epsilon = self.start_epsilon 
 
         self.start_session()
@@ -156,7 +156,7 @@ class SimpleQNetwork(QNetwork):
             else:
                 target_batch.append(reward_batch[i] + self.gamma * np.max(yj[i]))
 
-        output, summary = self.sess.run([self.network['output'], self.summaries], feed_dict={
+        output, summary = self.sess.run([self.network['training_step'], self.summaries], feed_dict={
             self.network['input']: state_t_batch,
             self.network['action']: action_batch,
             self.network['target']: target_batch})
@@ -217,7 +217,6 @@ class SimpleQNetwork(QNetwork):
         QNetwork.variable_summaries(output, 'output')
         QNetwork.variable_summaries(error, 'error')
         QNetwork.variable_summaries(W_fc2, 'final_weights')
-        tf.scalar_summary('action/picked', np.argmax(output))
         
         return {'input': input, 
                 'output': output, 

@@ -56,13 +56,12 @@ tick = 0
 network = SimpleQNetwork('models/doom/test', 3, 120, 160, observe_ticks = 100)
 
 not_finished = True
-observe = True
+observe = False
 observe_sleep_time = 0.05
 average = 0
 episodes = 0
 
 while True and not_finished:
-	# Starts a new episode. It is not needed right after init() but it doesn't cost much. At least the loop is nicer.
 	game.new_episode()
         action = 0
 
@@ -71,9 +70,9 @@ while True and not_finished:
 	while not (game.is_episode_finished()):
 
                 tick += 1
-#                if tick == 110:
-#                    not_finished = False
-#                    break;
+                if not observe: 
+                    os.system('cls' if os.name == 'nt' else 'clear')
+                    print("Tick:\t", tick)
 		
 		state = game.get_state()
                 reward = game.make_action(actions[action])
@@ -92,12 +91,13 @@ while True and not_finished:
                     game.new_episode()
 
         
-        episode_reward = game.get_total_reward()
-        average = average * (episodes-1)/episodes + episode_reward/episodes 
+        if observe:
+            episode_reward = game.get_total_reward()
+            average = average * (episodes-1)/episodes + episode_reward/episodes 
 
-        os.system('cls' if os.name == 'nt' else 'clear')
-        print("Last Episode Reward:\t", episode_reward)
-        print("Number of Episodes:\t", episodes)
-        print("Average Reward:\t\t", average)
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print("Last Episode Reward:\t", episode_reward)
+            print("Number of Episodes:\t", episodes)
+            print("Average Reward:\t\t", average)
 
 game.close()
