@@ -26,8 +26,8 @@ class SimpleQNetwork(QNetwork):
         current_epsilon: A float indicating the current epsilon value
     """
 
-    def __init__(self, model_dir, num_actions, image_height, image_width,  
-            memorysize = 20000, input_frame_length = 4, observe_ticks = 10000, batch_size = 32):
+    def __init__(self, model_dir, num_actions, image_width, image_height,  
+            memorysize = 20000, save_delta = 10000, input_frame_length = 4, observe_ticks = 10000, batch_size = 32):
         """ Initialises network
         """
         super(SimpleQNetwork, self).__init__(model_dir, num_actions)
@@ -42,10 +42,11 @@ class SimpleQNetwork(QNetwork):
         self.replay_memory = ReplayMemory(memorysize)
         self.previous_sa_pair = ()
         self.frame_queue = FrameQueue(input_frame_length)
+        self.save_delta = save_delta
 
         self.start_epsilon = 1.0
         self.end_epsilon = 0
-        self.epsilon_degrade_steps = 200000
+        self.epsilon_degrade_steps = 1000000
         self.current_epsilon = self.start_epsilon 
 
         self.start_session()
@@ -67,10 +68,7 @@ class SimpleQNetwork(QNetwork):
         self.frame_queue.add_frame(np.array(state['frame']))
         state_t1 = self.frame_queue.zip()
 
-        if self.previous_sa_pair['state']['terminal'] is True:
-            reward = 0
-        else:
-            reward = state['reward']
+        reward = state['reward']
 
         action = [0] * self.num_actions
         action[self.previous_sa_pair['action']] = 1
@@ -90,7 +88,7 @@ class SimpleQNetwork(QNetwork):
             the action chosen at random
         """
         self.t += 1
-        if self.t % 1000 == 0:
+        if self.t % self.save_delta == 0:
             self.save_model(self.t)
 
         if self.t < self.observe_ticks:
@@ -161,7 +159,8 @@ class SimpleQNetwork(QNetwork):
             self.network['action']: action_batch,
             self.network['target']: target_batch})
 
-        self.summary_writer.add_summary(summary, self.t)
+        if (self.t % 1 == 0):
+            self.summary_writer.add_summary(summary, self.t)
 
 
     def create_network(self):
@@ -196,14 +195,14 @@ class SimpleQNetwork(QNetwork):
         h_conv2 = tf.nn.relu(QNetwork.conv2d(h_pool1, W_conv2) + b_conv2)
         h_pool2 = QNetwork.max_pool_2x2(h_conv2)
 
-        # Third Layer
+        # Fourth Layer
         W_fc1 = QNetwork.weight_variable([((self.image_height / 4) * (self.image_width / 4) * 64), 1024])
         b_fc1 = QNetwork.bias_variable([1024])
 
-        h_pool2_flat = tf.reshape(h_pool2, [-1, ((self.image_height / 4) * (self.image_width / 4)) * 64])
+        h_pool2_flat = tf.reshape(h_pool2, [-1, (self.image_height / 4) * (self.image_width / 4) * 64])
         h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
-        # Fourth Layer
+        # Fith Layer
         W_fc2 = QNetwork.weight_variable([1024, self.num_actions])
         b_fc2 = QNetwork.bias_variable([self.num_actions])
         

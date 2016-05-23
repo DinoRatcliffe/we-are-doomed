@@ -16,66 +16,41 @@ from networks.simple_qnetwork import SimpleQNetwork
 import os
 import numpy as np
 
-
 game = DoomGame()
-
-game.set_vizdoom_path("./bin/vizdoom")
-game.set_doom_game_path("./bin/freedoom2.wad")
-game.set_doom_scenario_path("./bin/basic.wad")
-
-game.set_doom_map("map01")
-game.set_screen_resolution(ScreenResolution.RES_160X120)
-
-# Sets the screen buffer format. Not used here but now you can change it. Defalut is CRCGCB.
-game.set_screen_format(ScreenFormat.GRAY8)
-
-game.set_render_hud(False)
-game.set_render_crosshair(False)
-game.set_render_weapon(True)
-game.set_render_decals(False)
-game.set_render_particles(False)
-
-game.add_available_button(Button.TURN_LEFT) 
-game.add_available_button(Button.TURN_RIGHT)
-game.add_available_button(Button.ATTACK)
-
+game.load_config("./scenarios/config/health_gathering.cfg")
 actions = [[True,False,False],[False,True,False],[False,False,True]]
-
-game.add_available_game_variable(GameVariable.AMMO2)
-
-game.set_episode_start_time(10)
-game.set_window_visible(True)
-game.set_living_reward(-1)
-game.set_mode(Mode.PLAYER)
 game.init()
 
 sleep_time = 0
 tick = 0
 
 #ANN CODE
-network = SimpleQNetwork('models/doom/test', 3, 120, 160, observe_ticks = 100)
+network = SimpleQNetwork('models/doom/test', 3, game.get_screen_width(), game.get_screen_height(), observe_ticks = 10000)
 
 not_finished = True
-observe = False
+observe = True
 observe_sleep_time = 0.05
 average = 0
 episodes = 0
 
 while True and not_finished:
 	game.new_episode()
-        action = 0
 
+        action = 0
         episodes += 1
 
 	while not (game.is_episode_finished()):
-
                 tick += 1
-                if not observe: 
-                    os.system('cls' if os.name == 'nt' else 'clear')
+                if not observe and tick % 1000 == 0: 
                     print("Tick:\t", tick)
 		
-		state = game.get_state()
                 reward = game.make_action(actions[action])
+
+                if (reward != -1):
+                    print(reward)
+
+                if not game.is_episode_finished():
+                    state = game.get_state()
 
                 if observe:
                     action = network.game_tick({'frame': state.image_buffer[0]})
@@ -87,10 +62,6 @@ while True and not_finished:
                 if observe:
                     sleep(observe_sleep_time)
 
-                if state.game_variables[0] == 0:
-                    game.new_episode()
-
-        
         if observe:
             episode_reward = game.get_total_reward()
             average = average * (episodes-1)/episodes + episode_reward/episodes 

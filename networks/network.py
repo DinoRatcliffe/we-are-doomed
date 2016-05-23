@@ -136,7 +136,7 @@ class QNetwork(object):
         Returns:
             A tensor of the defined shape
         """
-        initial = tf.constant(0.1, shape=shape)
+        initial = tf.constant(0.01, shape=shape)
         return tf.Variable(initial)
 
     @staticmethod
