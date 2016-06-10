@@ -124,7 +124,7 @@ class QNetwork(object):
         Returns:
             A tensor of the defined shape with small random values
         """
-        initial = tf.truncated_normal(shape, stddev=0.01)
+        initial = tf.truncated_normal(shape, stddev=1e-6)
         return tf.Variable(initial)
 
     @staticmethod
@@ -136,7 +136,7 @@ class QNetwork(object):
         Returns:
             A tensor of the defined shape
         """
-        initial = tf.constant(0.01, shape=shape)
+        initial = tf.constant(1e-6, shape=shape)
         return tf.Variable(initial)
 
     @staticmethod
@@ -147,7 +147,7 @@ class QNetwork(object):
             tf.scalar_summary('mean/' + name, mean)
             with tf.name_scope('stddev'):
                 stddev = tf.sqrt(tf.reduce_sum(tf.square(var - mean)))
-            tf.scalar_summary('stddev/' + name, mean)
+            tf.scalar_summary('stddev/' + name, stddev)
             tf.scalar_summary('max/' + name, tf.reduce_max(var))
             tf.scalar_summary('min/' + name, tf.reduce_min(var))
             tf.histogram_summary(name, var)

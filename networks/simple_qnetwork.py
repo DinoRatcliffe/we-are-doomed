@@ -44,8 +44,8 @@ class SimpleQNetwork(QNetwork):
         self.frame_queue = FrameQueue(input_frame_length)
         self.save_delta = save_delta
 
-        self.start_epsilon = 1.0
-        self.end_epsilon = 0
+        self.start_epsilon = 0.5
+        self.end_epsilon = 0.1
         self.epsilon_degrade_steps = 1000000
         self.current_epsilon = self.start_epsilon 
 
@@ -181,14 +181,14 @@ class SimpleQNetwork(QNetwork):
         action = tf.placeholder(tf.float32, shape=[None, self.num_actions])
 
         # First Layer
-        W_conv1 = QNetwork.weight_variable([5, 5, self.input_frame_length, 32])
+        W_conv1 = QNetwork.weight_variable([3, 3, self.input_frame_length, 32])
         b_conv1 = QNetwork.bias_variable([32])
 
         h_conv1 = tf.nn.relu(QNetwork.conv2d(input, W_conv1) + b_conv1)
         h_pool1 = QNetwork.max_pool_2x2(h_conv1)
 
         # Second Layer
-        W_conv2 = QNetwork.weight_variable([5, 5, 
+        W_conv2 = QNetwork.weight_variable([3, 3, 
             32, 64])
         b_conv2 = QNetwork.bias_variable([64])
 

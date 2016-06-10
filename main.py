@@ -1,13 +1,7 @@
-#!/usr/bin/python2
-from __future__ import print_function
-from vizdoom import DoomGame
-from vizdoom import Mode
-from vizdoom import Button
-from vizdoom import GameVariable
-from vizdoom import ScreenFormat
-from vizdoom import ScreenResolution
-# Or just use from vizdoom import *
+#!/usr/bin/python
 
+from __future__ import print_function
+from vizdoom import *
 from random import choice
 from time import sleep
 from time import time
@@ -17,18 +11,23 @@ import os
 import numpy as np
 
 game = DoomGame()
-game.load_config("./scenarios/config/health_gathering.cfg")
-actions = [[True,False,False],[False,True,False],[False,False,True]]
+game.load_config("scenarios/config/health-gathering.cfg")
 game.init()
+
+actions = [
+        [1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0, 0]]
+
 
 sleep_time = 0
 tick = 0
 
 #ANN CODE
-network = SimpleQNetwork('models/doom/test', 3, game.get_screen_width(), game.get_screen_height(), observe_ticks = 10000)
+network = SimpleQNetwork('models/doom/test', len(actions), game.get_screen_width(), game.get_screen_height(), observe_ticks = 10000)
 
 not_finished = True
-observe = True
+observe = False
 observe_sleep_time = 0.05
 average = 0
 episodes = 0
@@ -45,8 +44,7 @@ while True and not_finished:
                     print("Tick:\t", tick)
 		
                 reward = game.make_action(actions[action])
-
-                if (reward != -1):
+                if (reward != -1.0):
                     print(reward)
 
                 if not game.is_episode_finished():
