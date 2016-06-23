@@ -1,6 +1,6 @@
 # we-are-doomed
 
-Work in progress
+Implementation of a Deep Q Network using ViZDOOM and TensorFlow (Work in progress)
 
 ## Media
 
