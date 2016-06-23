@@ -11,7 +11,7 @@ import os
 import numpy as np
 
 game = DoomGame()
-game.load_config("scenarios/config/health-gathering.cfg")
+game.load_config("scenarios/config/basic.cfg")
 game.init()
 
 actions = [
@@ -44,8 +44,6 @@ while True and not_finished:
                     print("Tick:\t", tick)
 		
                 reward = game.make_action(actions[action])
-                if (reward != -1.0):
-                    print(reward)
 
                 if not game.is_episode_finished():
                     state = game.get_state()
