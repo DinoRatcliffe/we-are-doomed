@@ -196,7 +196,7 @@ class SimpleQNetwork(QNetwork):
         h_pool2 = QNetwork.max_pool_2x2(h_conv2)
 
         # Fourth Layer
-        W_fc1 = QNetwork.weight_variable([((self.image_height / 4) * (self.image_width / 4) * 32), 512])
+        W_fc1 = QNetwork.weight_variable([((self.image_height / 4) * (self.image_width / 4) * 32), 256])
         b_fc1 = QNetwork.bias_variable([256])
 
         h_pool2_flat = tf.reshape(h_pool2, [-1, (self.image_height / 4) * (self.image_width / 4) * 32])
