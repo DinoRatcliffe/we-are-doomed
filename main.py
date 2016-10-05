@@ -15,9 +15,9 @@ game.load_config("scenarios/config/basic.cfg")
 game.init()
 
 actions = [
-        [1, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 1, 0, 0, 0, 0, 0]]
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]]
 
 
 sleep_time = 0

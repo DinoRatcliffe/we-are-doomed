@@ -181,29 +181,29 @@ class SimpleQNetwork(QNetwork):
         action = tf.placeholder(tf.float32, shape=[None, self.num_actions])
 
         # First Layer
-        W_conv1 = QNetwork.weight_variable([3, 3, self.input_frame_length, 32])
-        b_conv1 = QNetwork.bias_variable([32])
+        W_conv1 = QNetwork.weight_variable([3, 3, self.input_frame_length, 16])
+        b_conv1 = QNetwork.bias_variable([16])
 
         h_conv1 = tf.nn.relu(QNetwork.conv2d(input, W_conv1) + b_conv1)
         h_pool1 = QNetwork.max_pool_2x2(h_conv1)
 
         # Second Layer
         W_conv2 = QNetwork.weight_variable([3, 3, 
-            32, 64])
-        b_conv2 = QNetwork.bias_variable([64])
+            16, 32])
+        b_conv2 = QNetwork.bias_variable([32])
 
         h_conv2 = tf.nn.relu(QNetwork.conv2d(h_pool1, W_conv2) + b_conv2)
         h_pool2 = QNetwork.max_pool_2x2(h_conv2)
 
         # Fourth Layer
-        W_fc1 = QNetwork.weight_variable([((self.image_height / 4) * (self.image_width / 4) * 64), 1024])
-        b_fc1 = QNetwork.bias_variable([1024])
+        W_fc1 = QNetwork.weight_variable([((self.image_height / 4) * (self.image_width / 4) * 32), 512])
+        b_fc1 = QNetwork.bias_variable([256])
 
-        h_pool2_flat = tf.reshape(h_pool2, [-1, (self.image_height / 4) * (self.image_width / 4) * 64])
+        h_pool2_flat = tf.reshape(h_pool2, [-1, (self.image_height / 4) * (self.image_width / 4) * 32])
         h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
         # Fith Layer
-        W_fc2 = QNetwork.weight_variable([1024, self.num_actions])
+        W_fc2 = QNetwork.weight_variable([256, self.num_actions])
         b_fc2 = QNetwork.bias_variable([self.num_actions])
         
         output = tf.matmul(h_fc1, W_fc2) + b_fc2
